@@ -1,0 +1,56 @@
+# Deployment and Service in 1 file, because they belong together
+# Yeah, I know it's not a StatefulSet, but this is just an example
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-deployment
+  labels:
+    app: mongo
+spec:
+  replicas: 3
+  # How Deployment knows which Pods to manage
+  selector:
+    matchLabels:
+      app: mongo
+  # Template is a configuration for the Pods within a Deployment
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      # One container per Pod
+      containers:
+        - name: mongodb
+          image: mongo:7.0
+          ports:
+            - containerPort: 27017
+          # Environment variables
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  # Secret config filename
+                  name: mongo-secret
+                  key: mongo-user
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-secret
+                  key: mongo-password
+
+# YAML syntax, nothing to do with Kubernetes
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  # For network communication
+  name: mongo-service
+spec:
+  # How Service knows which Pods to forward requests to
+  selector:
+    app: mongo
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 27017

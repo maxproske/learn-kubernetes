@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongo-config
+# Actual contents of the ConfigMap
+data:
+  mongo-url: mongo-service
