@@ -1,12 +1,13 @@
 # Deployment and Service in 1 file, because they belong together
-# Yeah, I know it's not a StatefulSet, but this is just an example
 apiVersion: apps/v1
+# Yeah, I know it's not a StatefulSet, but this is just an example
 kind: Deployment
 metadata:
   name: mongo-deployment
   labels:
     app: mongo
 spec:
+  # Lol
   replicas: 3
   # How Deployment knows which Pods to manage
   selector:
@@ -52,5 +53,5 @@ spec:
     app: mongo
   ports:
     - protocol: TCP
-      port: 8080
+      port: 27017
       targetPort: 27017

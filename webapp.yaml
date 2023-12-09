@@ -20,6 +20,25 @@ spec:
           image: nanajanashia/k8s-demo-app:v1.0
           ports:
             - containerPort: 3000
+          # Exactly the same as the Deployment config
+          env:
+            - name: USER_NAME
+              valueFrom:
+                secretKeyRef:
+                  # Secret config filename
+                  name: mongo-secret
+                  key: mongo-user
+            - name: USER_PWD
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-secret
+                  key: mongo-password
+            - name: DB_URL
+              valueFrom:
+                configMapKeyRef:
+                  # ConfigMap config filename
+                  name: mongo-config
+                  key: mongo-url
 
 ---
 apiVersion: v1
@@ -27,9 +46,15 @@ kind: Service
 metadata:
   name: webapp-service
 spec:
+  # By default, Services are type `ClusterIP` (internal) 
+  # Use an external service type like `NodePort`
+  type: NodePort
   selector:
     app: webapp
   ports:
     - protocol: TCP
       port: 3000
       targetPort: 3000
+      # NodePort opens on K8s Nodes
+      # Anything between 30000-32767 is valid
+      nodePort: 30100
